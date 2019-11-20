@@ -2,63 +2,50 @@
 #include <util/delay.h>
 #include "light_ws2812.h"
 
-#define COUNTER ((i+j)%60)
+#define COUNTER ((i + j) % 20)
 
 #define MAX 50
+#define MAX_GREEN 40
+#define MIN_GREEN 5
 struct cRGB p;
 #define CURRENT_PIXEL p
 
+char initialValues[] = {11, 20, 30, 39, 30, 20, 15, 11, 15, 20};
+char dir1 = 0b10011101;
+char dir2 = 0b11;
+
+char GetDirection(int i)
+{
+    if (i < 8)
+        return dir1 & _BV(i);
+    return dir2 & _BV(i - 8);
+}
+
+void InvertDirection(int i)
+{
+    if (i < 8)
+        dir1 ^= _BV(i);
+    else
+        dir2 ^= _BV(i - 8);
+}
+
 int main(void)
 {
-	char i =0;
+    while (1)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            CURRENT_PIXEL.r = MAX;
+            CURRENT_PIXEL.g = initialValues[i];
+            CURRENT_PIXEL.b = 0;
 
-	while (1)
-	{
-		for (int j = 0;j<20;j++)
-		{
-			if (COUNTER<10)
-			{
-				// full blue, rising green
-				CURRENT_PIXEL.r = 0;
-				CURRENT_PIXEL.g =COUNTER*MAX/10;
-				CURRENT_PIXEL.b = MAX;
-			}
-			else if (COUNTER<20)
-			{
-				// full green, falling blue
-				CURRENT_PIXEL.r = 0;
-				CURRENT_PIXEL.g = MAX;
-				CURRENT_PIXEL.b =(20-1-COUNTER)*MAX/10;
-			}
-			else if (COUNTER<30)
-			{	//full green rising red
-				CURRENT_PIXEL.r = (COUNTER-20)*MAX/10;
-				CURRENT_PIXEL.g = MAX;
-				CURRENT_PIXEL.b = 0;
-			}
-			else if  (COUNTER<40)
-			{	//full green falling red
-				CURRENT_PIXEL.r = (40-1-COUNTER)*MAX/10;
-				CURRENT_PIXEL.g = MAX;
-				CURRENT_PIXEL.b = 0;
-			}
-			else if (COUNTER<50)
-			{   //full green rising blue
-				CURRENT_PIXEL.r = 0;
-				CURRENT_PIXEL.g = MAX;
-				CURRENT_PIXEL.b = (COUNTER-40)*MAX/10;
-			}
-			else
-			{    //full blue falling green
-				CURRENT_PIXEL.r = 0;
-				CURRENT_PIXEL.g = (60-1-COUNTER)*MAX/10;
-				CURRENT_PIXEL.b = MAX;
-			}
-			ws2812_sendarray_mask_single(&p,_BV(PB0));
-		}
-		// ws2812_setleds((struct cRGB *)&p, 10);
-		_delay_ms(50);
-		i = (i+1)%60;
-	
+            ws2812_sendarray_mask_single(&p, _BV(PB0));
+
+            char direction = GetDirection(i);
+            initialValues[i] += direction ? 1 : -1;
+            if (initialValues[i] == (direction ? MAX_GREEN : MIN_GREEN))
+                InvertDirection(i);
+        }
+        _delay_ms(50);
     }
 }

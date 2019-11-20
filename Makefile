@@ -23,10 +23,10 @@ all:
 	${SIZE} -C --mcu=${MCU} ${TARGET}.elf
 
 flash:
-	${AVRDUDE} -p ${MCU} -c stk500v1 -P COM13 -b 19200 -U flash:w:${TARGET}.hex:i -F
+	${AVRDUDE} -p ${MCU} -c stk500v1 -P COM4 -b 19200 -U flash:w:${TARGET}.hex:i -F
 
 fuse:
-	$(AVRDUDE) -p ${MCU} -c stk500v1 -P COM13 -b 19200 -U hfuse:w:${FUSE_H}:m -U lfuse:w:${FUSE_L}:m
+	$(AVRDUDE) -p ${MCU} -c stk500v1 -P COM4 -b 19200 -U hfuse:w:${FUSE_H}:m -U lfuse:w:${FUSE_L}:m
 
 clean:
 	rm -f *.c~ *.o *.elf *.hex
