@@ -10,7 +10,7 @@
 struct cRGB p;
 #define CURRENT_PIXEL p
 
-char initialValues[] = {11, 20, 30, 39, 30, 20, 15, 11, 15, 20};
+char LedValues[] = {11, 20, 30, 39, 30, 20, 15, 11, 15, 20};
 char dir1 = 0b10011101;
 char dir2 = 0b11;
 
@@ -31,19 +31,19 @@ void InvertDirection(int i)
 
 int main(void)
 {
+    CURRENT_PIXEL.r = MAX;
+    // CURRENT_PIXEL.b = 0;
     while (1)
     {
         for (int i = 0; i < 10; i++)
         {
-            CURRENT_PIXEL.r = MAX;
-            CURRENT_PIXEL.g = initialValues[i];
-            CURRENT_PIXEL.b = 0;
+            CURRENT_PIXEL.g = LedValues[i];
 
             ws2812_sendarray_mask_single(&p, _BV(PB0));
 
             char direction = GetDirection(i);
-            initialValues[i] += direction ? 1 : -1;
-            if (initialValues[i] == (direction ? MAX_GREEN : MIN_GREEN))
+            LedValues[i] += direction ? 1 : -1;
+            if (LedValues[i] == (direction ? MAX_GREEN : MIN_GREEN))
                 InvertDirection(i);
         }
         _delay_ms(50);
